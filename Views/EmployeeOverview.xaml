@@ -1,0 +1,179 @@
+﻿<UserControl x:Class="AccountingHelper.Views.EmployeeOverview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AccountingHelper.Models;assembly=AccountingHelper.Models"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             mc:Ignorable="d" 
+             >
+    <UserControl.Resources>
+        <Style x:Key="ChartLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="8"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>            
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="AnnualTextBoxStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="20 0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <DataTemplate x:Key="LabelTemplate" DataType="{x:Type telerik:CategoricalAxis}">
+            <TextBlock Text="{Binding}" MaxWidth="100" TextWrapping="Wrap">
+                <TextBlock.LayoutTransform>
+                    <RotateTransform Angle="-45" />
+                </TextBlock.LayoutTransform>
+            </TextBlock>
+        </DataTemplate>
+        <DataTemplate x:Key="AnnnualSalary" DataType="{x:Type local:EmployeeSalaryDetail}">
+            <Grid Height="40" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="5*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0"  VerticalAlignment="Stretch"></Border>
+                <TextBlock Text="{Binding Category}" HorizontalAlignment="Center" Style="{StaticResource AnnualTextBoxStyle}"
+                           Grid.Column="0"/>
+                <Border Grid.Column="1" VerticalAlignment="Stretch"></Border>
+                <TextBlock Text="{Binding Salary, StringFormat=N2}" Style="{StaticResource AnnualTextBoxStyle}" Grid.Column="1"/>
+                <Border Grid.Column="2"  VerticalAlignment="Stretch"></Border>
+                <TextBlock Text="{Binding Bonus, StringFormat=N2}" Style="{StaticResource AnnualTextBoxStyle}" Grid.Column="2"/>
+                <Border Grid.Column="3" ></Border>
+                <TextBlock Text="{Binding TotalCompensation, StringFormat=N2}" Style="{StaticResource AnnualTextBoxStyle}" Grid.Column="3"/>
+
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Show Button for pdf-Export  in Row 0 and Column 0-->
+
+        <telerik:RadButton Content="pdf - Datei erstellen" Command="{Binding GeneratePdfFilesCommand}" Margin="10"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- Show List of Employees in Row 1, Column 0 -->
+        <telerik:RadListBox Grid.Row="1" Grid.Column="0" Margin="10"
+                            ItemsSource="{Binding Employees}"
+                            DisplayMemberPath="FullName"
+                            SelectionMode="Extended"                            
+                            telerik:ListBoxSelectedItemsBehavior.SelectedItemsSource="{Binding SelectedEmployees}">
+           
+        </telerik:RadListBox>
+        
+        <!--  Show Employee Name in Row 0 Column 1 -->
+
+        <TextBlock Text="{Binding SelectedEmployee.FullName, FallbackValue=Mitarbeiter}" Visibility="{Binding EmployeeDetailVisibility}"
+                   Grid.Column="1" VerticalAlignment="Center"
+                   FontSize="30" Foreground="MidnightBlue" Margin="50 5 5 5"/>
+        
+        <!--   Show Employee Details in Row 1 Column 1  -->
+
+        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Margin="10 ">
+                <StackPanel  Margin="0 0 0 20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="9*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Text="Eintrittsdatum:  " Style="{StaticResource AnnualTextBoxStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding FormattedDateJoined}" Style="{StaticResource AnnualTextBoxStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="0" Grid.Row="1" Text="Vertragsende / Austritt:  " Style="{StaticResource AnnualTextBoxStyle}"/>
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding FormattedDateLeft}" Style="{StaticResource AnnualTextBoxStyle}" HorizontalAlignment="Left"/>
+                    </Grid>
+                </StackPanel>
+                <telerik:RadCartesianChart x:Name="EmployeeChart" Tag="{Binding ChartFileName, Mode=TwoWay}"
+                    Height="400" Width="700" Palette="Material" Margin="30 50 0 0" HorizontalAlignment="Left"
+                                         UIUpdated="EmployeeChart_UIUpdated" >
+                    <telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:DateTimeContinuousAxis LabelFitMode="Rotate" LabelFormat="MMM yyyy" MajorStepUnit="Quarter" LabelInterval="3"
+                                                        LabelStyle="{StaticResource ChartLabelStyle}"></telerik:DateTimeContinuousAxis>
+                    </telerik:RadCartesianChart.HorizontalAxis>
+                    <telerik:RadCartesianChart.VerticalAxis>
+                        <telerik:LinearAxis LabelFormat="N0"  LabelStyle="{StaticResource ChartLabelStyle}"></telerik:LinearAxis>
+                    </telerik:RadCartesianChart.VerticalAxis>
+                    <telerik:RadCartesianChart.Series>
+                        <telerik:StepLineSeries ItemsSource="{Binding EmployeeSalaryDetails}" CategoryBinding="SalaryMonth" ValueBinding="Salary" ShowLabels="True">
+                            <telerik:LineSeries.LabelDefinitions>
+                                <telerik:ChartSeriesLabelDefinition  Margin="55 -10 0 0">
+                                    <telerik:ChartSeriesLabelDefinition.Template>
+                                        <DataTemplate>
+                                            <TextBlock Foreground="DarkBlue" Text="{Binding DataItem.SalaryLabel}" FontSize="10">
+                                                <TextBlock.LayoutTransform>
+                                                    <RotateTransform Angle="0" />
+                                                </TextBlock.LayoutTransform>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </telerik:ChartSeriesLabelDefinition.Template>
+                                </telerik:ChartSeriesLabelDefinition>
+                            </telerik:LineSeries.LabelDefinitions>
+                        </telerik:StepLineSeries>
+                        <telerik:BarSeries ItemsSource="{Binding EmployeeSalaryDetails}" CategoryBinding="SalaryMonth" ValueBinding="Bonus" ShowLabels="True">
+                            <telerik:BarSeries.VerticalAxis>
+                                <telerik:LinearAxis HorizontalLocation="Right" LabelFormat="n0"  LabelStyle="{StaticResource ChartLabelStyle}"/>
+                            </telerik:BarSeries.VerticalAxis>
+                            <telerik:BarSeries.LabelDefinitions>
+                                <telerik:ChartSeriesLabelDefinition HorizontalAlignment="Center" Margin="0 -10 0 0">
+                                    <telerik:ChartSeriesLabelDefinition.Template>
+                                                <DataTemplate>
+                                            <TextBlock Foreground="DarkBlue" Text="{Binding DataItem.BonusLabel}" FontSize="10">
+                                                <TextBlock.LayoutTransform>
+                                                    <RotateTransform Angle="-90" />
+                                                </TextBlock.LayoutTransform>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </telerik:ChartSeriesLabelDefinition.Template>
+                                </telerik:ChartSeriesLabelDefinition>
+                            </telerik:BarSeries.LabelDefinitions>
+                        </telerik:BarSeries>
+                    </telerik:RadCartesianChart.Series>
+                    <telerik:EventToCommandBehavior.EventBindings>
+                        <telerik:EventBinding EventName="Loaded" Command="{Binding ChartLoadedCommand}" CommandParameter="{Binding ElementName=EmployeeChart}"/>
+                    </telerik:EventToCommandBehavior.EventBindings>
+                </telerik:RadCartesianChart>
+
+
+                <TextBlock Margin="30 20" Text="Jahreszahlen" FontSize="30" FontWeight="Bold"/>
+                <Grid Height="40" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="5*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Kalenderjahr" Style="{StaticResource AnnualTextBoxStyle}" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="Monatsgehälter" Style="{StaticResource AnnualTextBoxStyle}"/>
+                    <TextBlock Grid.Column="2" Text="Boni" Style="{StaticResource AnnualTextBoxStyle}"/>
+                    <TextBlock Grid.Column="3" Text="Jahresgehalt" Style="{StaticResource AnnualTextBoxStyle}"/>
+                </Grid>
+                <telerik:RadListBox ItemsSource="{Binding EmployeeAnnualDetails}" ItemTemplate="{DynamicResource AnnnualSalary}"
+                                    ></telerik:RadListBox>
+            
+                
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>

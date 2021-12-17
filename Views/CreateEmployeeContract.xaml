@@ -1,0 +1,95 @@
+﻿<UserControl x:Class="AccountingHelper.Views.CreateEmployeeContract"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"    
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+               xmlns:fixed="clr-namespace:Telerik.Windows.Documents.Fixed;assembly=Telerik.Windows.Controls.FixedDocumentViewers"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             
+             >
+    <UserControl.Resources>
+        <fixed:PdfDocumentSourceValueConverter x:Key="PdfDocumentSourceValueConverter"/>
+
+  
+    </UserControl.Resources>
+    
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30*"></ColumnDefinition>
+            <ColumnDefinition Width="70*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Eingabe der Daten für das Merge-Document -->
+        <Grid Grid.Column="0" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+            <!--   Row 0: Select Template -->
+            <StackPanel Grid.Row="0" Margin="0 5">
+                <Label Content="Select WordTemplate" FontWeight="Bold" FontSize="20" ></Label>
+                <DockPanel Margin="0 5" LastChildFill="true">
+                    <telerik:RadButton Command="{Binding BrowseCommand}" Margin="5 0 20 0" Padding="3 0" DockPanel.Dock="Right">...</telerik:RadButton>
+                    <TextBox Text="{Binding SelectedTemplate, Mode=TwoWay}" HorizontalAlignment="Right" Margin="0 5"></TextBox>
+                </DockPanel>
+                
+            </StackPanel>
+
+
+            <!--  Row 1: Enter PropertyValues -->
+            <StackPanel Grid.Row="1" Margin="0 5" DataContext="{Binding InternshipData}">
+            <Label Content="Candidate Information" FontWeight="Bold" FontSize="20"></Label>
+                 <telerik:DataFormDataField DataMemberBinding="{Binding FirstName}" Label="Firstname"></telerik:DataFormDataField>
+                <telerik:DataFormDataField DataMemberBinding="{Binding LastName}" Label="Lastname"></telerik:DataFormDataField>
+                <telerik:DataFormDataField DataMemberBinding="{Binding EmailAddress}" Label="Email"></telerik:DataFormDataField>
+                <telerik:DataFormDateField DataMemberBinding="{Binding StartDate}" Label="Start Date"></telerik:DataFormDateField>
+                <telerik:DataFormDateField DataMemberBinding="{Binding EndDate}" Label="End Date"></telerik:DataFormDateField>
+                <telerik:DataFormDataField DataMemberBinding="{Binding MonthlySalary, StringFormat=N2}" Label="monthly Salary"></telerik:DataFormDataField>
+                <telerik:DataFormDataField DataMemberBinding="{Binding MaxBonusPerMonth, StringFormat=N2}" Label="max. Bonus (per month)"></telerik:DataFormDataField>
+                <telerik:DataFormCheckBoxField DataMemberBinding="{Binding HasVacation}" Label="Vacation"></telerik:DataFormCheckBoxField>
+                
+            </StackPanel>
+            <!--  Row 2 OK and Reset Button -->
+            <DockPanel Grid.Row="2" LastChildFill="False" Margin="0 5">
+                <telerik:RadButton Command="{Binding CreateContractCommand}" Margin="5 0" DockPanel.Dock="Right" >Create Contract</telerik:RadButton>
+                <telerik:RadButton Command="{Binding ResetInformationCommand}" Margin="5 0" DockPanel.Dock="Right">Cancel Input</telerik:RadButton>
+            </DockPanel>
+
+            <!-- Row 2 Enter Email Information -->
+        </Grid>
+        
+      <!-- Erzeugte pdf.datei anzeigen -->
+
+        <Grid Grid.Column="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <telerik:RadPdfViewerToolBar RadPdfViewer="{Binding ElementName=pdfViewer, Mode=OneTime}" 
+                                             SignaturePanel="{Binding ElementName=signaturePanel, Mode=OneTime}"
+                                             HasOpenButton="False"
+                                             HasSaveButton="true"/>
+            <telerik:SignaturePanel x:Name="signaturePanel" PdfViewer="{Binding ElementName=pdfViewer, Mode=OneWay}" Grid.Row="1"/>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <telerik:RadPdfViewerNavigationPane RadPdfViewer="{Binding ElementName=pdfViewer, Mode=OneTime}"/>
+                <telerik:RadPdfViewer x:Name="pdfViewer" Grid.Column="1" DataContext="{Binding CommandDescriptors, ElementName=pdfViewer}"   
+                                          DocumentSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}},Converter={StaticResource PdfDocumentSourceValueConverter}, Path=DataContext.SelectedFileName}"
+                                          telerik:RadPdfViewerAttachedComponents.RegisterSignSignatureDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterFindDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterSignaturePropertiesDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterContextMenu="True"/>
+            </Grid>
+
+        </Grid>
+            
+    </Grid>
+</UserControl>

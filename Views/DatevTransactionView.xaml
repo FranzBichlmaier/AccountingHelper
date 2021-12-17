@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="AccountingHelper.Views.DatevTransactionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AccountingHelper.Views"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+            >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <telerik:RadGridView Grid.Row="1" Padding="30"
+                             ItemsSource="{Binding ListOfDatevTransactionTypes}"
+                             AutoGenerateColumns="False"
+                             ColumnWidth="*"
+                             NewRowPosition="Top"
+                             ShowGroupPanel="False"
+                             IsSynchronizedWithCurrentItem="True"
+                             SelectionMode="Single">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="Vorgang (Beschreibung)" DataMemberBinding="{Binding TransactionType}" MinWidth="500"/>
+                <telerik:GridViewDataColumn Header="Kontonummer" DataMemberBinding="{Binding DatevAccount}" TextAlignment="Center"/>
+                <telerik:GridViewDataColumn Header="MWSt-Schlüssel voll" DataMemberBinding="{Binding DatevVat19}" TextAlignment="Center"/>
+                <telerik:GridViewDataColumn Header="MWSt-Schlüssel ermäßigt" DataMemberBinding="{Binding DatevVat07}" TextAlignment="Center"/>
+                <telerik:GridViewDataColumn Header="MWSt-Schlüssel ohne" DataMemberBinding="{Binding DatevVat00}" TextAlignment="Center"/>
+                <telerik:GridViewCheckBoxColumn Header="Lohnsteuerpflichtig" DataMemberBinding="{Binding IsTaxableIncome}" TextAlignment="Center"/>
+                <telerik:GridViewDataColumn Header="Unterkonto" DataMemberBinding="{Binding SubAccount}" TextAlignment="Center"/>
+            </telerik:RadGridView.Columns>
+            <telerik:EventToCommandBehavior.EventBindings>
+                <telerik:EventBinding EventName="AddingNewDataItem" Command="{Binding NewRowAddedCommand}" PassEventArgsToCommand="True"/>
+                <telerik:EventBinding EventName="Deleting" Command="{Binding RowDeletingCommand}"/>               
+                <telerik:EventBinding EventName="RowEditEnded" Command="{Binding RowEditEndedCommand}"/>
+            </telerik:EventToCommandBehavior.EventBindings>
+        </telerik:RadGridView>
+            
+    </Grid>
+</UserControl>

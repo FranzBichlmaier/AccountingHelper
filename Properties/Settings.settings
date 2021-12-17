@@ -1,0 +1,42 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AccountingHelper.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="RootDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Users\franz\OneDrive - Franz Bichlmaier Consulting\QuantCo</Value>
+    </Setting>
+    <Setting Name="DatevDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Datev</Value>
+    </Setting>
+    <Setting Name="TravelExpenseDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Reisekosten</Value>
+    </Setting>
+    <Setting Name="EmailAccount" Type="System.String" Scope="User">
+      <Value Profile="(Default)">bichlmaier@quantco.com</Value>
+    </Setting>
+    <Setting Name="BdoTo" Type="System.String" Scope="User">
+      <Value Profile="(Default)">diana.schmidt@bdo.de</Value>
+    </Setting>
+    <Setting Name="BdoCc" Type="System.String" Scope="User">
+      <Value Profile="(Default)">guenter.wagner@bdo.de</Value>
+    </Setting>
+    <Setting Name="BdoHr" Type="System.String" Scope="User">
+      <Value Profile="(Default)">stefan.bahr@bdo.de;diana.schmidt@bdo.de</Value>
+    </Setting>
+    <Setting Name="IsTest" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="EmployeeDocuments" Type="System.String" Scope="User">
+      <Value Profile="(Default)">EmployeeDocuments</Value>
+    </Setting>
+    <Setting Name="CEOTo" Type="System.String" Scope="User">
+      <Value Profile="(Default)">blauth@quantco.com</Value>
+    </Setting>
+    <Setting Name="PdfVorlagePortait" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\franz\OneDrive - Franz Bichlmaier Consulting\QuantCo\pdfVorlage.pdf</Value>
+    </Setting>
+    <Setting Name="ContractTemplates" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\franz\OneDrive - Franz Bichlmaier Consulting\QuantCo\ContractTemplates</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -1,0 +1,22 @@
+﻿<Application x:Class="AccountingHelper.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                 <!--The following is necessary to style ReportViewer -->
+
+                <ResourceDictionary Source="/Telerik.ReportViewer.Wpf.Themes;component/Themes/Material/System.Windows.xaml" />
+                <ResourceDictionary Source="/Telerik.ReportViewer.Wpf.Themes;component/Themes/Material/Telerik.Windows.Controls.xaml" />
+                <ResourceDictionary Source="/Telerik.ReportViewer.Wpf.Themes;component/Themes/Material/Telerik.Windows.Controls.Input.xaml" />
+                <ResourceDictionary Source="/Telerik.ReportViewer.Wpf.Themes;component/Themes/Material/Telerik.Windows.Controls.Navigation.xaml" />
+                <ResourceDictionary Source="/Telerik.ReportViewer.Wpf.Themes;component/Themes/Material/Telerik.ReportViewer.Wpf.xaml" />
+
+                 <!-- The following resource contains the Glyph symbols -->
+                <ResourceDictionary Source="/Telerik.Windows.Controls;component/Themes/FontResources.xaml"/>
+                <ResourceDictionary Source="/Styles/ApplicationStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,129 @@
+﻿<UserControl x:Class="AccountingHelper.Views.TravelExpenseList" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:Notification="clr-namespace:AccountingHelper.NotificationControls"            
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <prism:InteractionRequestTrigger SourceObject="{Binding NotificationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:NotificationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+        <prism:InteractionRequestTrigger SourceObject="{Binding ConfirmationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:ConfirmationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <telerik:RadButton Content="neue Reisekostenabrechnung" Command="{Binding NewTravelExpenseCommand}" Style="{StaticResource NormalButton}"
+                     HorizontalAlignment="Left"/>
+            <telerik:RadButton Content="Reisekosten für Datev erstellen" Command="{Binding PrepareForDatevCommand}" Style="{StaticResource NormalButton}"
+                 HorizontalAlignment="Left"/>
+            <telerik:RadButton Content="Übersicht lohnsteuerpflichtige Leistungen" Command="{Binding PrepareTaxableExpensesCommand}" Style="{StaticResource NormalButton}"
+                 HorizontalAlignment="Left"/>
+            <telerik:RadDropDownButton Content="Mitarbeiter-Auswertungen" Style="{StaticResource NormalDropDownButton}">
+                <telerik:RadDropDownButton.DropDownContent>
+                    <ListBox Name="DropDownListBox" >
+                        <ListBoxItem Content="Alle Auswertungen" Tag="AllReports" Style="{StaticResource DropDownListBoxItem}"/>
+                        <ListBoxItem Content="Reisekostenabrechnungen an Mitarbeiter mailen" Tag="TravelExpenseReport" Style="{StaticResource DropDownListBoxItem}"/>
+                        <ListBoxItem Content="geldwerte Vorteile an Mitarbeiter mailen" Tag="TaxableIncomeReport" Style="{StaticResource DropDownListBoxItem}"/>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <prism:InvokeCommandAction Command="{Binding DropDownItemSelectedCommand}" CommandParameter="{Binding ElementName=DropDownListBox, Path=SelectedItem.Tag}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ListBox>
+                </telerik:RadDropDownButton.DropDownContent>
+            </telerik:RadDropDownButton>
+
+        </StackPanel>
+
+        <telerik:RadGridView Grid.Row="1" Margin="50 20"
+                             ItemsSource="{Binding ListOfTravelExpenses}"                             
+                             AutoGenerateColumns="False"
+                             CanUserDeleteRows="True"
+                             SelectionMode="Extended"
+                             SelectionUnit="FullRow">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="Mitarbeiter" DataMemberBinding="{Binding EmployeeName}" MinWidth="250"/>
+                <telerik:GridViewDataColumn Header="Nameszusatz" DataMemberBinding="{Binding NameAddition}" MinWidth="250"/>
+                <telerik:GridViewDataColumn Header="Monat / Jahr" HeaderTextAlignment="Center" DataMemberBinding="{Binding MonthAndYear}" TextAlignment="Center"/>
+                <telerik:GridViewDataColumn Header="Erstattungsbetrag" HeaderTextAlignment="Right" DataMemberBinding="{Binding TotalReimbursement, StringFormat=N2}" TextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="für Datev vorbereitet" DataMemberBinding="{Binding ProvidedToDatev, StringFormat=G}" TextAlignment="Right" MinWidth="250"/>
+            </telerik:RadGridView.Columns>
+            <telerik:EventToCommandBehavior.EventBindings>
+                <telerik:EventBinding EventName="SelectionChanged" Command="{Binding TravelExpenseItemsSelectionChangedCommand}" PassEventArgsToCommand="True"/>
+                <telerik:EventBinding EventName="MouseDoubleClick" Command="{Binding ShowTravelExpenseCommand}"/>
+                <telerik:EventBinding EventName="Deleting" Command="{Binding DeletingTravelExpenseCommand}" PassEventArgsToCommand="True"/>
+            </telerik:EventToCommandBehavior.EventBindings>
+        </telerik:RadGridView>
+
+        <Grid Grid.Row="2" Visibility="{Binding DatevWindowState}">
+            <Border Padding="20" Background="{telerik:MaterialResource ResourceKey=ComplementaryBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.5*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row ="0" Text="Kontoauszug Nummer: " FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row ="1" Text="Directory-Name im Datev-Ordner" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="0" Grid.Column="1"
+                             Text="{Binding BankStatementNumber, Mode=TwoWay}"
+                             FontSize="18" Margin="20 0 0 0" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="1"
+                             Text="{Binding DatevDirectoryName, Mode=TwoWay}"
+                             FontSize="18" Margin="20 0 0 0" VerticalAlignment="Center"/>
+                    <telerik:RadGridView Grid.Row="2" Margin="0 20" Grid.ColumnSpan="2"
+                                         ItemsSource="{Binding SelectedTravelExpenses}"
+                                         AutoGenerateColumns="False"
+                                         IsReadOnly="True"
+                                         ShowGroupPanel="False">
+                        <telerik:RadGridView.Columns>
+                            <telerik:GridViewDataColumn Header="Reisekostenabrechnung für" DataMemberBinding="{Binding EmployeeName}"/>
+                            <telerik:GridViewDataColumn Header="Abrechnungsmonat" HeaderTextAlignment="Center" 
+                                                        DataMemberBinding="{Binding MonthAndYear}" TextAlignment="Center"/>
+                            <telerik:GridViewDataColumn Header="Name der Beleg-Datei" DataMemberBinding="{Binding ReportFileName}"/>
+                        </telerik:RadGridView.Columns>
+                    </telerik:RadGridView>
+                    <DockPanel Grid.Row="3" Grid.ColumnSpan="2" LastChildFill="False">
+                        <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="20 0 0 0">
+                            <CheckBox IsChecked="{Binding ShowReport, Mode=TwoWay}" FontSize="16" Content="Bericht drucken"/>
+                            <CheckBox IsChecked="{Binding CreateFiles, Mode=TwoWay}" FontSize="16" Content="Dateien im Datev-Ordner speichern"/>
+                        </StackPanel>
+                        <telerik:RadButton Content="Übertragung starten" Command="{Binding StartMovingExpensesCommand}" Style="{StaticResource NormalButton}"
+                     DockPanel.Dock="Right"/>
+                        <telerik:RadButton Content="Abbrechen" Command="{Binding CancelMovingExpensesCommand}" Style="{StaticResource NormalButton}"
+                     DockPanel.Dock="Right"/>
+                    </DockPanel>
+
+                </Grid>
+
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

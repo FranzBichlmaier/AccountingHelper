@@ -1,0 +1,256 @@
+﻿<UserControl x:Class="AccountingHelper.Views.EmployeeSalaries"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:Notification="clr-namespace:AccountingHelper.NotificationControls"
+             xmlns:Extensions="clr-namespace:AccountingHelper.MarkupExtensions"
+             xmlns:Enums="clr-namespace:AccountingHelper.Models;assembly=AccountingHelper.Models"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity">
+    <telerik:EventToCommandBehavior.EventBindings>
+        <telerik:EventBinding EventName="Loaded" Command="{Binding UserControlLoadedCommand}" PassEventArgsToCommand="True"/>
+    </telerik:EventToCommandBehavior.EventBindings>
+    <i:Interaction.Triggers>
+        <prism:InteractionRequestTrigger SourceObject="{Binding NotificationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:NotificationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+        <prism:InteractionRequestTrigger SourceObject="{Binding ConfirmationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:ConfirmationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+    <UserControl.Resources>
+        <DataTemplate x:Key="ToolTipTemplate">
+            <TextBlock FontFamily="Segoe UI" Text="{Binding Tooltip}" Padding="10 0"
+                               Foreground="{telerik:MaterialResource ResourceKey=MainBrush}"
+                       Background="{telerik:MaterialResource ResourceKey=PrimaryNormalBrush}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="ItemWithDurationTemplate">
+            <Border>
+                <Grid Background="{telerik:MaterialResource ResourceKey=PrimaryNormalBrush}"  Height="20"  Margin="3">
+              
+                <TextBlock HorizontalAlignment="Center" Text="{Binding DataItem.Tooltip}" VerticalAlignment="Center"
+                           Foreground="{telerik:MaterialResource ResourceKey=MainBrush}"
+                           FontSize="10"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="TimelineBonusTemplate">
+            <Rectangle Width="20" Height="20" Fill="{telerik:MaterialResource ResourceKey=AccentNormalBrush}"
+                       Margin="3"/>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Border Height="{Binding ControlHeight, Mode=TwoWay}">
+    <Grid Margin="20">
+            <Grid.RowDefinitions>                
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+       
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+       
+            <telerik:RadToolBar Margin="20" AutoHideOverflowButton="True">
+                <telerik:RadButton Content="Gehaltsliste" Command="{Binding SalaryOverviewCommand}"/>
+                <telerik:RadButton  Command="{Binding PayrollCostCommand}">
+                    <telerik:RadButton.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Personalkosten für " VerticalAlignment="Center" Margin="5 0"/>
+                            <telerik:RadDatePicker SelectedValue="{Binding MonthlySalaryDate, Mode=TwoWay}" Width="110" DateSelectionMode="Month" DisplayFormat="Short"/>
+                        </StackPanel>
+                    </telerik:RadButton.Content>
+                </telerik:RadButton>
+
+                <telerik:RadButton Content="Urlaubsrückstellungen" Command="{Binding VacationLiabilityCommand}"/>
+                <telerik:RadButton Content="Gehaltsentwicklung" Command="{Binding SalaryDevelopmentCommand}"/>
+            </telerik:RadToolBar>
+           
+        <telerik:RadGridView ItemsSource="{Binding ListOfCurrentPayments}" Grid.Row="1"
+                             IsReadOnly="true"
+                             AutoGenerateColumns="False"
+                             IsSynchronizedWithCurrentItem="True"
+                             ShowGroupPanel="False">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="Mitarbeiter" DataMemberBinding="{Binding Employee.FullName}" MinWidth="250"/>
+                <telerik:GridViewDataColumn Header="Typ" DataMemberBinding="{Binding PaymentType}"/>
+                <telerik:GridViewDataColumn Header="Monatsgehalt" DataMemberBinding="{Binding MonthlySalary, StringFormat=n2}" TextAlignment="Right" HeaderTextAlignment="Right" MinWidth="150"/>               
+                <telerik:GridViewDataColumn Header="Letzte Gehaltsanpassung" DataMemberBinding="{Binding FirstPayment, StringFormat='MMM yyyy'}" TextAlignment="Center"/>
+                    <telerik:GridViewDataColumn Header="Letzte Zahlung" DataMemberBinding="{Binding LastPayment, StringFormat=d}" TextAlignment="Center"/>
+                </telerik:RadGridView.Columns>
+        </telerik:RadGridView>
+
+            <Grid Grid.Column="1" Grid.RowSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="{Binding CurrentEmployeeFullname, Mode=TwoWay}" 
+                           FontSize="20" Margin="20" Foreground="{telerik:MaterialResource ResourceKey=PrimaryNormalBrush}"/>
+                    <telerik:RadTimeline Margin="20"
+                                 PeriodStart="{Binding TimelinePeriodStart, Mode=TwoWay}"
+                                 PeriodEnd="{Binding TimelinePeriodEnd, Mode=TwoWay}"
+                                 VisiblePeriodStart="{Binding TimelinePeriodStart, Mode=TwoWay}"
+                                 VisiblePeriodEnd="{Binding TimelinePeriodEnd, Mode=TwoWay}"
+                                     StartPath="FirstPayment"
+                                     DurationPath="Duration"
+                                     GroupPath="PaymentType"
+                                     ItemsSource="{Binding ListOfPaymentDetails, Mode=TwoWay}"
+                                     ToolTipTemplate="{StaticResource ToolTipTemplate}"
+                                     TimelineItemTemplate="{StaticResource ItemWithDurationTemplate}"
+                                     TimelineInstantItemTemplate="{StaticResource TimelineBonusTemplate}">
+                        <telerik:RadTimeline.Intervals>
+                            <telerik:YearInterval/>
+                            <telerik:MonthInterval/>
+                        </telerik:RadTimeline.Intervals>
+                    </telerik:RadTimeline>
+                    <telerik:RadToolBar  Margin="20" AutoHideOverflowButton="True">
+                        <telerik:RadButton Content="aktuelles Gehalt" Command="{Binding EditCurrentSalaryCommand}"/>
+                        <telerik:RadButton Content="Bonus" Command="{Binding AddBonusPaymentCommand}"/>
+                        <telerik:RadButton Content="Ende / Unterbrechnung" Command="{Binding SetFinalPaymentCommand}"/>
+                        <telerik:RadButton Content="Gehalts-Entwicklung" Command="{Binding EditSalaryHistoryCommand}"/>
+                    </telerik:RadToolBar>
+                </StackPanel>
+
+                <!-- There are different section shown dependent on the function selected
+                    There is a 'no record view' in case there are no records for the selected employee 
+                    There is a 'current salary view' which includes Salary, Social Security premium, valid from and valid until
+                    There is a 'bonus view' which includes an amount and a payment month and
+                    There is a 'history view' which lists all records for the selected employee 
+            -->
+            <TextBlock Text="Es sind keine Informationen vorhanden" FontSize="20" FontWeight="Bold" TextWrapping="Wrap"
+                       Visibility="{Binding NoRecordView}"
+                       Grid.Row="1"
+                       Margin="20"/>
+
+            <StackPanel Margin="20" Visibility="{Binding CurrentSalaryView}" Grid.Row="1">
+                <TextBlock Text="Aktuelles Gehalt: "  FontSize="20" FontWeight="Bold" />
+                <telerik:DataFormDataField Label="Bemerkung" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding CurrentPaymentDetail.PaymentDescription}"/>
+                <telerik:DataFormDataField Label="aktuelles Monatsgehalt:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding CurrentPaymentDetail.MonthlyAmount, StringFormat=N2}"/>
+              
+                <telerik:DataFormDateField Label="Gehalt ab:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding  CurrentPaymentDetail.FirstPayment, StringFormat=d}"/>
+                <telerik:DataFormDateField Label="Gehalt bis:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding  CurrentPaymentDetail.LastPayment, StringFormat=d}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,10">
+                    <telerik:RadButton Content="Speichern" Command="{Binding SaveCommand}" CommandParameter="CurrentSalary"
+                                       Style="{StaticResource NormalButton}" HorizontalAlignment="Right"/>
+                    <telerik:RadButton Content="Abbrechen" Command="{Binding CancelCommand}" CommandParameter="CurrentSalary"
+                                       Style="{StaticResource NormalButton}" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Margin="20" Visibility="{Binding BonusView}" Grid.Row="1">
+                <TextBlock Text="BonusZahlung: "  FontSize="20" FontWeight="Bold" />
+                <telerik:DataFormDataField Label="Bonus-Betrag:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding  CurrentPaymentDetail.MonthlyAmount, StringFormat=N2}"/>
+               
+                <telerik:DataFormDateField Label="fällig am:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding  CurrentPaymentDetail.FirstPayment, StringFormat=d}"/>
+    
+                <StackPanel Orientation="Horizontal" Margin="0,10">
+                    <telerik:RadButton Content="Speichern" Command="{Binding SaveCommand}" CommandParameter="BonusPayment"
+                                       Style="{StaticResource NormalButton}" HorizontalAlignment="Right"/>
+                    <telerik:RadButton Content="Abbrechen" Command="{Binding CancelCommand}" CommandParameter="BonusPayment"
+                                       Style="{StaticResource NormalButton}" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Margin="20" Visibility="{Binding FinalPaymentDateView}" Grid.Row="1">
+                <TextBlock Text="Datum der letzten Gehaltszahlung" FontSize="20" FontWeight="Bold"/>
+                <telerik:DataFormDataField Label="Bemerkung" LabelPosition="Above"
+                                           DataMemberBinding="{Binding CurrentPaymentDetail.PaymentDescription}"/>
+                <telerik:DataFormDateField Label="Letzte Gehaltszahlung" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding CurrentPaymentDetail.LastPayment, StringFormat=d}"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,10">
+                    <telerik:RadButton Content="Speichern" Command="{Binding SaveCommand}" CommandParameter="LastPayment"
+                                       Style="{StaticResource NormalButton}" HorizontalAlignment="Right"/>
+                    <telerik:RadButton Content="Abbrechen" Command="{Binding CancelCommand}" CommandParameter="LastPayment"
+                                       Style="{StaticResource NormalButton}" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </StackPanel>
+
+           
+                        <Grid Margin="20"  Visibility="{Binding SalaryHistoryView}" Grid.Row="1" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" MaxHeight="300"/>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="400"/>
+                        </Grid.RowDefinitions>                   
+                
+                <telerik:RadGridView Margin="0,10"
+                                     ItemsSource="{Binding ListOfPaymentDetails}"
+                                     AutoGenerateColumns="False"
+                                     ShowGroupPanel="False"
+                                     IsSynchronizedWithCurrentItem="True"
+                                     CanUserDeleteRows="true"
+                                     CanUserInsertRows="False"                                     
+                                    >
+                        <telerik:EventToCommandBehavior.EventBindings>
+                            <telerik:EventBinding EventName="Deleting" Command="{Binding SalaryItemDeletingCommand}" PassEventArgsToCommand="True"/>
+                        </telerik:EventToCommandBehavior.EventBindings>
+                    <telerik:RadGridView.Columns>
+                        <telerik:GridViewComboBoxColumn Header="ZahlungsTyp" DataMemberBinding="{Binding PaymentType}" UniqueName="PaymentType"
+                                                        ItemsSource="{Binding Source={Extensions:EnumBindingSource {x:Type Enums:PaymentType}}}" IsReadOnly="True"/>
+                        <telerik:GridViewDataColumn Header="Betrag" DataMemberBinding="{Binding MonthlyAmount, StringFormat=N2}"
+                                                    HeaderTextAlignment="Right" TextAlignment="Right" IsReadOnly="True"/>
+                        
+                        <telerik:GridViewDataColumn Header="Zahlung ab" DataMemberBinding="{Binding FirstPayment, StringFormat=d}"
+                                                    HeaderTextAlignment="Center" TextAlignment="Center" IsReadOnly="True"/>
+                        <telerik:GridViewDataColumn Header="letzte Zahlung" DataMemberBinding="{Binding LastPayment, StringFormat=d}"
+                                                    HeaderTextAlignment="Center" TextAlignment="Center" IsReadOnly="True"/>
+                    </telerik:RadGridView.Columns>                       
+                </telerik:RadGridView>
+                      
+                        <Grid Grid.Row="2" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                        <telerik:DataFormComboBoxField Label="ZahlungsTyp" DataMemberBinding="{Binding CurrentPaymentDetail.PaymentType}" LabelPosition="Above" Margin="0 10"
+                                                        ItemsSource="{Binding Source={Extensions:EnumBindingSource {x:Type Enums:PaymentType}}}"/>
+                        <telerik:DataFormDataField Label="Bemerkung" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding CurrentPaymentDetail.PaymentDescription}"/>
+                            <telerik:DataFormDataField Label="aktuelles Monatsgehalt:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding CurrentPaymentDetail.MonthlyAmount, StringFormat=N2}"/>                          
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                        <telerik:DataFormDateField  Label="Gehalt ab:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding  CurrentPaymentDetail.FirstPayment, StringFormat=d}"/>
+                        <telerik:DataFormDateField  Label="Gehalt bis:" LabelPosition="Above" Margin="0 10"
+                                           DataMemberBinding="{Binding  CurrentPaymentDetail.LastPayment, StringFormat=d}"/>
+                        </StackPanel>
+                        <DockPanel  Margin="0,10" LastChildFill="False" Grid.ColumnSpan="2" Grid.Row="1">
+                                <telerik:RadButton Content="Speichern" Command="{Binding SaveCommand}" CommandParameter="Detail"
+                                       Style="{StaticResource NormalButton}" DockPanel.Dock="Right"/>
+                                <telerik:RadButton Content="Abbrechen" Command="{Binding CancelCommand}" CommandParameter="Detail"
+                                       Style="{StaticResource NormalButton}" DockPanel.Dock="Right"/>
+                            <telerik:RadButton Content="neuer Eintrag" Command="{Binding AddNewPaymentDetailCommand}"
+                                               Style="{StaticResource NormalButton}" DockPanel.Dock="Left"/>
+                        </DockPanel>
+                        </Grid>
+                    </Grid>      
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

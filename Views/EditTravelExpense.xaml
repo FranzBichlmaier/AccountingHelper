@@ -1,0 +1,226 @@
+﻿<UserControl x:Class="AccountingHelper.Views.EditTravelExpense"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"             
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:Notification="clr-namespace:AccountingHelper.NotificationControls"
+             xmlns:converter="clr-namespace:AccountingHelper.Converter"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"             
+             Loaded="UserControl_Loaded"
+            >
+    <i:Interaction.Triggers>
+        <prism:InteractionRequestTrigger SourceObject="{Binding NotificationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:NotificationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+        <prism:InteractionRequestTrigger SourceObject="{Binding ConfirmationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:ConfirmationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+    <UserControl.Resources>
+        <converter:DateToMonthYearConverter x:Key="DateToMonthYearConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0"  HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            
+                <Grid Margin="20" Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row ="0" Text="Mitarbeiter" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row ="1" Text="Namensergänzung" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row ="2" Text="Monat / Jahr" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row ="3" Text="Erstattungsbetrag" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row ="4" Text="Bearbeitungshinweis" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="5" Text="Dateiname der Belege" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+                <telerik:RadComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Employees}"
+                                         SelectedItem="{Binding SelectedEmployee, Mode=TwoWay}"
+                                     SelectedIndex="{Binding SelectedEmployeeIndex, Mode=TwoWay}"
+                                         TextSearchMode="Contains"
+                                         DisplayMemberPath="FullName"                                         
+                                         Margin="20 0 0 0" VerticalAlignment="Center"
+                                         FontSize="18"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TravelExpense.NameAddition}" FontSize="18" Margin="20 0 0 0" VerticalAlignment="Center"/>
+                <telerik:RadDateTimePicker InputMode="DatePicker" x:Name="DateTimePicker"
+                                               Grid.Row="2" Grid.Column="1"
+                                               DateSelectionMode="Month"
+                                               SelectedValue="{Binding ReportAsOf, Mode=TwoWay}"
+                                           DisplayFormat="Short"
+                                               Margin="20 0 0 0" VerticalAlignment="Center"
+                                               FontSize="18"/>
+                    <TextBox Grid.Row="3" Grid.Column="1"
+                             Text="{Binding TravelExpense.TotalReimbursement, StringFormat=n2, Mode=TwoWay}"
+                             FontSize="18" Margin="20 0 0 0" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="4" Grid.Column="1"
+                             Text="{Binding TravelExpense.AdditionalInformation, Mode=TwoWay}"
+                             FontSize="18" Margin="20 0 0 0" VerticalAlignment="Center"
+                         AcceptsReturn="True" MaxLines="3"/>
+                <TextBox Grid.Row="5" Grid.Column="1"
+                             Text="{Binding TravelExpense.ReportFileName, Mode=TwoWay}"
+                             FontSize="18" Margin="20 0 0 0" VerticalAlignment="Center" IsReadOnly="{Binding ReceiptFileNameFound, Mode=TwoWay}">
+                    <telerik:EventToCommandBehavior.EventBindings>
+                        <telerik:EventBinding EventName="MouseDoubleClick" Command="{Binding SelectReceiptFileNameCommand}"/>
+                    </telerik:EventToCommandBehavior.EventBindings>
+                </TextBox>
+            </Grid>
+            <DockPanel Grid.Column="1" LastChildFill="False" Margin="20">
+                <WrapPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                    <telerik:RadButton  
+                    Padding="20" HorizontalAlignment="Left" 
+                         Style="{StaticResource NormalButton}"
+                         Command="{Binding BackToListCommand}"
+                        Content="zurück"/>
+                    <telerik:RadButton  
+                    Padding="20" HorizontalAlignment="Left" 
+                         Style="{StaticResource NormalButton}"
+                         Command="{Binding SaveTravelExpenseCommand}"
+                        Content="Speichern"/>
+                    <telerik:RadButton
+                         Padding="20" HorizontalAlignment="Left" 
+                         Style="{StaticResource NormalButton}"
+                         Command="{Binding ViewReceiptsCommand}"
+                        Content="Belege ansehen"/>
+                    <telerik:RadButton
+                         Padding="20" HorizontalAlignment="Left" 
+                         Style="{StaticResource NormalButton}"
+                         Command="{Binding PrintExpenseCommand}"
+                        Content="Drucken"/>
+                        
+                </WrapPanel>
+
+                <telerik:RadButton  DockPanel.Dock="Bottom"
+                    Padding="20 0 0 0" HorizontalAlignment="Left" Margin="20 10"
+                        VerticalAlignment="Center" FontSize="16"
+                         Command="{Binding EditTaxableIncomeCommand}"
+                        Content="Lohnsteuerbeträge bearbeiten"/>
+            </DockPanel>
+               
+            
+        </Grid>
+        <telerik:RadGridView Grid.Row="1" Margin="50"
+                             IsEnabled="{Binding CanEditTravelExpenseItems}"
+                             ItemsSource="{Binding ListOfTravelExpenseItems}"                            
+                             IsSynchronizedWithCurrentItem="true"  
+                             GroupRenderMode="Flat"
+                             NewRowPosition="Bottom"
+                             AutoGenerateColumns="False"
+                             ColumnWidth="*"
+                             ShowGroupPanel="False">
+            <telerik:RadGridView.Columns>
+
+                <telerik:GridViewDataColumn Header="Leistungsdatum" DataMemberBinding="{Binding PerformanceDate, StringFormat='dd.MM.yyyy'}" ></telerik:GridViewDataColumn>
+                <telerik:GridViewComboBoxColumn Header="Buchungsart" DataMemberBinding="{Binding DatevTransactionTypeId}"
+                                                ItemsSource="{Binding TransactionTypes}"
+                                                DisplayMemberPath="TransactionType"
+                                                SelectedValueMemberPath="Id"/>
+                <telerik:GridViewDataColumn Header="Beschreibung" DataMemberBinding="{Binding Description}" HeaderTextAlignment="Left"/>
+                <telerik:GridViewDataColumn Header="19 %" DataMemberBinding="{Binding Amount19, StringFormat=N2}" TextAlignment="Right" HeaderTextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="7 %" DataMemberBinding="{Binding Amount07, StringFormat=N2}" TextAlignment="Right" HeaderTextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="keine MWSt" DataMemberBinding="{Binding Amount00, StringFormat=N2}" TextAlignment="Right" HeaderTextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="Gesamtbetrag" DataMemberBinding="{Binding TotalAmount, StringFormat=N2}" TextAlignment="Right" HeaderTextAlignment="Right"/>
+                <telerik:GridViewCheckBoxColumn Header="Lohnsteuerpflichtig" DataMemberBinding="{Binding IsTaxableIncome}" AutoSelectOnEdit="True" EditTriggers="CellClick"/> 
+            </telerik:RadGridView.Columns>
+            <telerik:EventToCommandBehavior.EventBindings>
+                <telerik:EventBinding EventName="AddingNewDataItem" Command="{Binding AddingNewRowCommand}" PassEventArgsToCommand="True"/>
+                <telerik:EventBinding EventName="RowEditEnded" Command="{Binding RowEditEndedCommand}"/>                
+                <telerik:EventBinding EventName="CellValidated" Command="{Binding CellValidatedCommand}"/>
+                <telerik:EventBinding EventName="Deleted" Command="{Binding DeletedCommand}"/>
+            </telerik:EventToCommandBehavior.EventBindings>
+        </telerik:RadGridView>
+
+        <Grid Grid.Row="2" Visibility="{Binding TaxableIncomeWindowState}"
+              Background="{telerik:MaterialResource ResourceKey=ComplementaryBrush}"
+                           >
+            <Border Padding="20">
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0 10 0 10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="aufzuteilender Betrag" FontSize="14" TextAlignment="Right" Margin="0 0 20 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        <TextBox  Grid.Column="1"
+                             Text="{Binding AmountToBeSplit, StringFormat=n2, Mode=TwoWay}"
+                             FontSize="18" Margin="20 0 0 0" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <telerik:RadGridView Grid.Row="1" 
+                                         ItemsSource="{Binding ListOfTaxableItems}"
+                                         ShowGroupPanel="False"
+                                         AutoGenerateColumns="False"
+                                         NewRowPosition="Top">
+                        <telerik:RadGridView.Columns>
+                            <telerik:GridViewComboBoxColumn Header="Mitarbeiter"
+                                                            ItemsSource="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.Employees}"
+                                                            DataMemberBinding="{Binding EmployeeForTravelExpenseId}"
+                                                            
+                                                            SelectedValueMemberPath="Id"
+                                                            DisplayMemberPath="FullName"></telerik:GridViewComboBoxColumn>
+                            <telerik:GridViewDataColumn Header="Beschreibung" DataMemberBinding="{Binding Description}"/>
+                            <telerik:GridViewDataColumn Header="Abrechnungsmonat" DataMemberBinding="{Binding MonthAndYear}" IsReadOnly="True"/>
+                            <telerik:GridViewDataColumn Header="zu versteuernder Betrag" HeaderTextAlignment="Right" TextAlignment="Right"
+                                                        DataMemberBinding="{Binding TaxableAmount, StringFormat=N2}"/>
+                            <telerik:GridViewCheckBoxColumn Header="Brutto angleichen" DataMemberBinding="{Binding AdjustGrossIncome, Mode=TwoWay}" AutoSelectOnEdit="True" EditTriggers="CellClick"/>
+                            <telerik:GridViewDataColumn Header="an BDO übertragen am" IsReadOnly="True"
+                                                        DataMemberBinding="{Binding DateTimeReported, StringFormat=longDate}"></telerik:GridViewDataColumn>                            
+                        </telerik:RadGridView.Columns>
+                        <telerik:EventToCommandBehavior.EventBindings>
+                            <telerik:EventBinding EventName="AddingNewDataItem" Command="{Binding AddingNewTaxableIncomeItemCommand}" PassEventArgsToCommand="True"/>
+                            <telerik:EventBinding EventName="RowEditEnded" Command="{Binding TaxableIncomeRowEditEndedCommand}"/>
+                            <telerik:EventBinding EventName="Deleted" Command="{Binding TaxableIncomeRowDeletedCommand}"/>
+                        </telerik:EventToCommandBehavior.EventBindings>
+                    </telerik:RadGridView>
+                    <DockPanel Grid.Row="2" Margin="0 20 0 0" LastChildFill="False">
+                        <StackPanel DockPanel.Dock="Left">
+                            <CheckBox IsChecked="{Binding SplitTotalAmount}" Content="Rechnungsbetrag auf Teilnehmer aufteilen" Margin="3"/>
+                            <CheckBox IsChecked="{Binding AcceptLowerTaxableAmount}" Content="Teilbetrag ist lohnsteuerpflichtig" Margin="3"/>
+                        </StackPanel>
+
+                        <telerik:RadButton Content="Speichern" DockPanel.Dock="Right" Style="{StaticResource NormalButton}" Command="{Binding SaveTaxableIncomeCommand}"
+                                VerticalAlignment="Center" Margin="20 0 "/>
+                        <telerik:RadButton Content="Abbrechen" DockPanel.Dock="Right" Style="{StaticResource NormalButton}" Command="{Binding CancelTaxableIncomeCommand}"
+                                VerticalAlignment="Center"/>
+                    </DockPanel>
+                </Grid>
+              
+            </Border>
+        </Grid>
+            
+    </Grid>
+</UserControl>

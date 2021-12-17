@@ -1,0 +1,128 @@
+﻿<UserControl x:Class="AccountingHelper.Views.EmployeeDocument"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:Notification="clr-namespace:AccountingHelper.NotificationControls"
+             xmlns:extension="clr-namespace:AccountingHelper.MarkupExtensions"
+             xmlns:enums="clr-namespace:AccountingHelper.Models;assembly=AccountingHelper.Models"
+             xmlns:fixed="clr-namespace:Telerik.Windows.Documents.Fixed;assembly=Telerik.Windows.Controls.FixedDocumentViewers"
+             xmlns:local="clr-namespace:AccountingHelper.Views"
+             mc:Ignorable="d" 
+             >
+    <i:Interaction.Triggers>
+        <prism:InteractionRequestTrigger SourceObject="{Binding NotificationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:NotificationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+        <prism:InteractionRequestTrigger SourceObject="{Binding ConfirmationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:ConfirmationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+    <UserControl.Resources>
+        <fixed:PdfDocumentSourceValueConverter x:Key="PdfDocumentSourceValueConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="Dokument-Verwaltung für " FontSize="16" VerticalAlignment="Center" Margin="20 "/>
+            <telerik:RadComboBox Margin="20" VerticalAlignment="Center"
+                                 FontSize="16"
+                                 MinWidth="300"
+                                 ItemsSource="{Binding Employees}"
+                                 IsSynchronizedWithCurrentItem="true"
+                                 DisplayMemberPath="FullName"
+                                 TextSearchMode="Contains">                
+            </telerik:RadComboBox>
+        </StackPanel>
+        <Grid Grid.Row="1" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <telerik:RadToolBar>
+                <telerik:RadButton Content="Neu" Command="{Binding AddDocumentCommand}"/>
+                <telerik:RadButton Content="Email" Command="{Binding PrepareEmailCommand}"/>
+            </telerik:RadToolBar>
+         
+            <telerik:RadGridView Grid.Column="0" Grid.Row="1"
+                                 Margin="20"
+                                 ItemsSource="{Binding ListOfDocuments}"
+                                 CanUserDeleteRows="False"
+                                 CanUserInsertRows="False"
+                                 AutoGenerateColumns="False"
+                                 IsSynchronizedWithCurrentItem="True"                                
+                                 >
+    
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewComboBoxColumn Header="Documenten-Typ" DataMemberBinding="{Binding DocumentType}" 
+                                                    ItemsSource="{Binding Source={extension:EnumBindingSource {x:Type enums:DocumentTypes}}}"/>
+                    <telerik:GridViewDataColumn Header="Inhaltsangabe" DataMemberBinding="{Binding DocumentContentDescription}" />
+                    <telerik:GridViewDataColumn Header="gültig bis" DataMemberBinding="{Binding DateValidUntil, StringFormat=d}" />
+                    <telerik:GridViewDataColumn Header="Dateiname" DataMemberBinding="{Binding DocumentFileName}" IsReadOnly="True"/>
+                </telerik:RadGridView.Columns>
+                <telerik:EventToCommandBehavior.EventBindings>                 
+                    <telerik:EventBinding EventName="RowEditEnded" Command="{Binding RowEditEndedCommand}"/>
+                </telerik:EventToCommandBehavior.EventBindings>
+            </telerik:RadGridView>
+            <!--<Grid Grid.Row="2" Visibility="{Binding AddingNewItem}">
+                <telerik:RadDataForm CurrentItem="{Binding SelectedDocument}"
+                                             AutoGeneratingField="RadDataForm_AutoGeneratingField"
+                                             AutoEdit="True">
+                    <telerik:EventToCommandBehavior.EventBindings>
+                        <telerik:EventBinding EventName="EditEnded" Command="{Binding RowEditEndedCommand}"/>
+                    </telerik:EventToCommandBehavior.EventBindings>
+
+                </telerik:RadDataForm>
+            </Grid>-->
+            <Grid Grid.Column="1" Margin="20" Grid.RowSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <telerik:RadPdfViewerToolBar RadPdfViewer="{Binding ElementName=pdfViewer, Mode=OneTime}" 
+                                             SignaturePanel="{Binding ElementName=signaturePanel, Mode=OneTime}"
+                                             HasOpenButton="False"
+                                             HasSaveButton="False"/>
+                <telerik:SignaturePanel x:Name="signaturePanel" PdfViewer="{Binding ElementName=pdfViewer, Mode=OneWay}" Grid.Row="1"/>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <telerik:RadPdfViewerNavigationPane RadPdfViewer="{Binding ElementName=pdfViewer, Mode=OneTime}"/>
+                    <telerik:RadPdfViewer x:Name="pdfViewer" Grid.Column="1" DataContext="{Binding CommandDescriptors, ElementName=pdfViewer}"   
+                                          DocumentSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}},Converter={StaticResource PdfDocumentSourceValueConverter}, Path=DataContext.SelectedFileName}"
+                                          telerik:RadPdfViewerAttachedComponents.RegisterSignSignatureDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterFindDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterSignaturePropertiesDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterContextMenu="True"/>
+                </Grid>
+            </Grid>
+        </Grid>
+        
+            
+    </Grid>
+</UserControl>

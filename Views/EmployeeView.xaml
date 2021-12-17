@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="AccountingHelper.Views.EmployeeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converter="clr-namespace:AccountingHelper.Converter"
+             xmlns:local="clr-namespace:AccountingHelper.Views"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <telerik:InvertedBooleanToOpacityConverter x:Key="InvertedBooleanToOpacityConverter"/>
+        <converter:IntegerToMonthConverter x:Key="IntegerToMonthConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>           
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80*"/>
+            <ColumnDefinition Width="20*"/>
+        </Grid.ColumnDefinitions>
+
+        <telerik:RadGridView Grid.Row="1" Padding="30"
+                             ItemsSource="{Binding ListOfEmployees}"
+                             ShowGroupPanel="False"
+                             AutoGenerateColumns="False"
+                             IsSynchronizedWithCurrentItem="True"
+                             NewRowPosition="Top">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="Vorname" DataMemberBinding="{Binding FirstName}" Width="140"/>
+                <telerik:GridViewDataColumn Header="Name (kurz)" DataMemberBinding="{Binding ShortName}" Width="140"/>
+                <telerik:GridViewDataColumn Header="voller Name" DataMemberBinding="{Binding FullName}" Width="200"/>
+                <telerik:GridViewCheckBoxColumn Header="Brutto angleichen" DataMemberBinding="{Binding AdjustGrossIncome}" AutoSelectOnEdit="true" EditTriggers="CellClick" Width="100"/>
+                <telerik:GridViewCheckBoxColumn Header="Essensgeld" DataMemberBinding="{Binding EntitledToSurplus}" AutoSelectOnEdit="true" EditTriggers="CellClick" Width="100"/>
+                <telerik:GridViewDataColumn Header="Datev Kontonummer" DataMemberBinding="{Binding DatevAccount}" Width="100"/>
+                <telerik:GridViewDataColumn Header="E-Mail Adresse" DataMemberBinding="{Binding EmailAddress}" Width="220"/>
+                <telerik:GridViewComboBoxColumn Header="aktuelle Zweigstelle" DataMemberBinding="{Binding QuantCoBranchId}" IsReadOnly="{Binding CanSelectBranch, Converter={StaticResource InvertedBooleanToOpacityConverter}}"
+                                                DisplayMemberPath="LocationName" SelectedValueMemberPath="Id" ItemsSource="{Binding QuantCoBranches}" Width="120"/>
+                <telerik:GridViewDataColumn Header="Min Bonus (Vertrag)" DataMemberBinding="{Binding MinimumBonus, StringFormat=N0}" Width="120" TextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="Max Bonus (Vertrag)" DataMemberBinding="{Binding MaximumBonus, StringFormat=N0}" Width="120" TextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="Monat (Bonus)" DataMemberBinding="{Binding BonusYearMonth}" Width="120" TextAlignment="Center"/>
+                <telerik:GridViewDataColumn Header="Zahlbar bis" DataMemberBinding="{Binding LatestBonusPayment}" Width="120" TextAlignment="Center"/>
+            </telerik:RadGridView.Columns>
+            <telerik:EventToCommandBehavior.EventBindings>
+                <telerik:EventBinding EventName="AddingNewDataItem" Command="{Binding AddedNewRowCommand}" PassEventArgsToCommand="True"></telerik:EventBinding>
+                <telerik:EventBinding EventName="Deleting" Command="{Binding RowDeletingCommand}"/>
+                <telerik:EventBinding EventName="RowEditEnded" Command="{Binding RowEditEndedCommand}"/>
+            </telerik:EventToCommandBehavior.EventBindings>
+        </telerik:RadGridView>
+        
+       <!--  Column 1 contains the history of Branches for the selected Employee -->
+
+        <telerik:RadGridView Grid.Row="1" Grid.Column="1" Margin="10 0 10 0"
+                             ItemsSource="{Binding EmployeeBranches}"
+                             IsSynchronizedWithCurrentItem="True"
+                             ShowGroupPanel="False"
+                             AutoGenerateColumns="False"
+                             NewRowPosition="Top"
+                             IsReadOnly="{Binding CanSelectBranch}"
+                             IsReadOnlyBinding="{Binding IsReadOnly}">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewComboBoxColumn Header="Zweigstelle" DataMemberBinding="{Binding QuantCoBranchId}" 
+                                                DisplayMemberPath="LocationName" SelectedValueMemberPath="Id" ItemsSource="{Binding QuantCoBranches}"/>
+                <telerik:GridViewDataColumn Header="Gültig ab" DataMemberBinding="{Binding ValidFrom, StringFormat=d}"/>
+                <telerik:GridViewDataColumn Header="Gültig bis" DataMemberBinding="{Binding ValidUntil, StringFormat=d}"/>
+            </telerik:RadGridView.Columns>
+
+            <telerik:EventToCommandBehavior.EventBindings>
+                <telerik:EventBinding EventName="AddingNewDataItem" Command="{Binding AddedNewBranchCommand}" PassEventArgsToCommand="True"></telerik:EventBinding>
+                <telerik:EventBinding EventName="Deleting" Command="{Binding BranchDeletingCommand}"/>
+                <telerik:EventBinding EventName="RowEditEnded" Command="{Binding BranchEditEndedCommand}"/>
+            </telerik:EventToCommandBehavior.EventBindings>
+
+        </telerik:RadGridView>
+            
+    </Grid>
+</UserControl>

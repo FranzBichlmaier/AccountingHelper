@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="AccountingHelper.Views.EmployeeOffice"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AccountingHelper.Views"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:Notification="clr-namespace:AccountingHelper.NotificationControls"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+               xmlns:fixed="clr-namespace:Telerik.Windows.Documents.Fixed;assembly=Telerik.Windows.Controls.FixedDocumentViewers"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <i:Interaction.Triggers>
+        <prism:InteractionRequestTrigger SourceObject="{Binding NotificationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:NotificationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+        <prism:InteractionRequestTrigger SourceObject="{Binding ConfirmationRequest}">
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
+                <prism:PopupWindowAction.WindowContent>
+                    <Notification:ConfirmationControl/>
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+    <UserControl.Resources>
+        <fixed:PdfDocumentSourceValueConverter x:Key="PdfDocumentSourceValueConverter"/>
+    </UserControl.Resources>
+    <Grid  Margin="20" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <telerik:RadPdfViewerToolBar RadPdfViewer="{Binding ElementName=pdfViewer, Mode=OneTime}" 
+                                             SignaturePanel="{Binding ElementName=signaturePanel, Mode=OneTime}"
+                                             HasOpenButton="False"
+                                             HasSaveButton="False"/>
+        <telerik:SignaturePanel x:Name="signaturePanel" PdfViewer="{Binding ElementName=pdfViewer, Mode=OneWay}" Grid.Row="1"/>
+        <Grid Grid.Row="2">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <telerik:RadPdfViewerNavigationPane RadPdfViewer="{Binding ElementName=pdfViewer, Mode=OneTime}"/>
+            <telerik:RadPdfViewer x:Name="pdfViewer" Grid.Column="1" DataContext="{Binding CommandDescriptors, ElementName=pdfViewer}"   
+                                          DocumentSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}},Converter={StaticResource PdfDocumentSourceValueConverter}, Path=DataContext.SelectedFileName}"
+                                          telerik:RadPdfViewerAttachedComponents.RegisterSignSignatureDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterFindDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterSignaturePropertiesDialog="True" 
+                                          telerik:RadPdfViewerAttachedComponents.RegisterContextMenu="True"/>
+        </Grid>
+    </Grid>
+</UserControl>
